@@ -1,16 +1,11 @@
-import Link from "next/link";
+import Feature from "./components/Feature";
+import HeroCarousel from "./components/HeroCarousel";
 
 export default function Home() {
   return (
-    <div style={{ padding: 40 }}>
-      <h1>English Uno Game</h1>
-      <p>Meu primeiro jogo para aprender inglês</p>
-
-      <Link href="/game">
-        <button style={{ marginTop: 20 }}>
-          🎮 Começar o jogo
-        </button>
-      </Link>
-    </div>
+    <main className="bg-transparent">
+      <HeroCarousel />
+      <Feature />
+    </main>
   );
 }
