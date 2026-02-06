@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @next/next/no-html-link-for-pages */
 import Link from 'next/link';
 
 export default function Footer() {

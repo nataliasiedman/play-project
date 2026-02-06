@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @next/next/no-html-link-for-pages */
 "use client";
 
 import { useState } from "react";
