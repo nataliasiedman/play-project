@@ -1,4 +1,6 @@
+import Link from 'next/link';
 export default function Footer() {
+
     return (
         <footer className="bg-transparent border-t border-neutral-200/50">
 
@@ -24,9 +26,9 @@ export default function Footer() {
   
             {/* Links */}
             <nav className="flex gap-6 text-sm font-medium text-neutral-600">
-              <a href="/" className="hover:text-neutral-900 transition">
-                Home
-              </a>
+              <Link href="/" className="hover:text-neutral-900 transition">
+              Home
+              </Link>
               <a href="/game" className="hover:text-neutral-900 transition">
                 Play
               </a>
