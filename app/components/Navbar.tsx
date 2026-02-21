@@ -140,7 +140,7 @@ export default function Navbar({
             )}
             onClick={() => setOpen((v) => !v)}
           >
-            <span className="text-lg">{open ? "✖️" : "🍔"}</span>
+            <span className="text-lg">{open ? "✖️" : "🪄"}</span>
           </button>
         </nav>
       </div>

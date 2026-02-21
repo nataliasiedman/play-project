@@ -21,13 +21,14 @@ const features: Feature[] = [
     title: "Natural Expressions", 
     description: "Move beyond textbook grammar. Master the phrasal verbs and idioms native speakers actually use.", 
     icon: "📖",
-    path: "/Levels"
+    path: "/expression"
+    
   },
   { 
     title: "Vocabulary in Use", 
     description: "Context is everything. Learn new terms through real-world scenarios designed for immediate use.", 
     icon: "🗣️",
-    path: "/Levels"
+    path: "/vocabulary"
   },
   { 
     title: "Placement Test", 
@@ -39,18 +40,21 @@ const features: Feature[] = [
     title: "Levels that make sense", 
     description: "Follow a professional roadmap from A1 to C1, aligned with global language proficiency standards.", 
     icon: "🧩", 
-    path: "/Levels" 
+    path: "/vocabulary"
+
   },
   { 
     title: "Active Pronunciation", 
     description: "Listen, repeat, and refine. Build your speaking confidence with native-like audio for every word.", 
-    icon: "🎙️" 
+    icon: "🎙️",
+    path: "/pronunciation" // Certifique-se que a pasta em 'app' tem este nome
   },
 ];
 
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#FFF5F7] overflow-x-hidden">
+      {/* Estilos Globais para Animações */}
       <style>{`
         @keyframes gradientFlow {
           0% { background-position: 0% 50%; }
@@ -58,11 +62,11 @@ export default function HomePage() {
           100% { background-position: 0% 50%; }
         }
         .animated-gradient-text {
-          background: linear-gradient(to right, #4f46e5, #9333ea, #db2777, #4f46e5);
+          background: linear-gradient(to right, #2563eb, #9333ea, #db2777, #2563eb);
           background-size: 300% auto;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          animation: gradientFlow 8s ease infinite;
+          animation: gradientFlow 6s ease infinite;
         }
         .glass-card {
           background: rgba(255, 255, 255, 0.7);
@@ -72,9 +76,9 @@ export default function HomePage() {
         }
         .glass-card:hover {
           background: white;
-          transform: translateY(-10px);
-          box-shadow: 0 20px 40px -10px rgba(147, 51, 234, 0.1);
-          border-color: rgba(147, 51, 234, 0.2);
+          transform: translateY(-10px) scale(1.02);
+          box-shadow: 0 25px 50px -12px rgba(147, 51, 234, 0.15);
+          border-color: rgba(147, 51, 234, 0.3);
         }
         .btn-gradient {
           background: linear-gradient(to right, #9333ea, #db2777);
@@ -82,53 +86,49 @@ export default function HomePage() {
         }
         .btn-gradient:hover {
           filter: brightness(1.1);
-          transform: translateY(-2px);
-          box-shadow: 0 12px 24px rgba(147, 51, 234, 0.25);
+          transform: scale(1.05);
+          box-shadow: 0 10px 20px rgba(147, 51, 234, 0.3);
         }
       `}</style>
 
       {/* Hero Section */}
-      <section className="px-6 pt-28 pb-20 text-center max-w-5xl mx-auto">
-        <h1 className="text-4xl md:text-6xl font-extrabold text-neutral-800 mb-6 leading-tight tracking-tight">
+      <section className="px-6 pt-24 pb-20 text-center max-w-5xl mx-auto">
+        <h1 className="text-5xl md:text-8xl font-black text-neutral-900 mb-8 leading-[1.05] tracking-tight">
           Unlock your fluency <br />
-          <span className="animated-gradient-text tracking-tighter">the easy way</span>
+          <span className="animated-gradient-text">the easy way</span>
         </h1>
-        <p className="text-base md:text-xl text-neutral-500/80 mb-10 max-w-2xl mx-auto font-medium">
-          ColorWords turns English complexity into a calm, effective journey toward your confidence.
-        </p>
+ 
         
-        <div className="flex flex-wrap justify-center gap-4">
-          <Link href="/game" className="btn-gradient px-9 py-4 text-white rounded-2xl font-bold text-base shadow-lg active:scale-95 transition-all">
+        <div className="flex flex-wrap justify-center gap-5">
+          <Link href="/game" className="btn-gradient px-10 py-5 text-white rounded-3xl font-extrabold text-lg shadow-xl active:scale-95">
             Start playing 🎮
           </Link>
-          <Link href="/about" className="px-9 py-4 bg-white/80 backdrop-blur-sm text-neutral-600 rounded-2xl font-bold text-base border border-neutral-200/50 hover:bg-white transition-all active:scale-95 shadow-sm">
-            Back home
-          </Link>
+        
         </div>
       </section>
 
       {/* Features Grid */}
-      <section className="px-6 pb-32 max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <section className="px-6 pb-32 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, idx) => (
             <div 
               key={idx}
-              className="glass-card group p-8 rounded-[35px] flex flex-col"
+              className="glass-card group p-10 rounded-[40px] flex flex-col"
             >
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-white to-purple-50 flex items-center justify-center text-2xl mb-6 shadow-sm">
+              <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center text-3xl mb-8 group-hover:rotate-6 transition-transform shadow-inner">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-bold text-neutral-800 mb-3 tracking-tight">{feature.title}</h3>
-              <p className="text-neutral-500 text-base leading-relaxed mb-6 flex-grow">
+              <h3 className="text-2xl font-black text-neutral-900 mb-4 tracking-tight">{feature.title}</h3>
+              <p className="text-neutral-600 leading-relaxed text-lg mb-8 flex-grow">
                 {feature.description}
               </p>
               {feature.path && (
                 <Link 
                   href={feature.path} 
-                  className="group/link text-xs font-bold text-purple-500 flex items-center gap-2 tracking-[0.15em] uppercase transition-all"
+                  className="group/link text-sm font-black text-purple-600 flex items-center gap-2 tracking-widest uppercase transition-all"
                 >
                   Explore Now 
-                  <span className="group-hover/link:translate-x-1.5 transition-transform">→</span>
+                  <span className="group-hover/link:translate-x-2 transition-transform">→</span>
                 </Link>
               )}
             </div>
@@ -136,9 +136,9 @@ export default function HomePage() {
         </div>
 
         {/* Bottom Tip */}
-        <div className="mt-16 p-7 rounded-[30px] bg-white/40 backdrop-blur-md border border-white/30 text-center max-w-xl mx-auto shadow-sm">
-          <p className="text-sm text-purple-600/80 font-medium italic">
-            ✨ Pro Tip: Consistency beats intensity. 5 minutes a day is all you need.
+        <div className="mt-16 p-8 rounded-[35px] bg-white/30 backdrop-blur-lg border border-white/20 text-center max-w-2xl mx-auto">
+          <p className="text-base text-purple-800 font-semibold italic">
+            ✨ Pro Tip: Consistency beats intensity. 5 minutes every day is the secret to real fluency.
           </p>
         </div>
       </section>
