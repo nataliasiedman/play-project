@@ -12,10 +12,11 @@ const launchConfetti = () => {
 };
 
 export default function EnglishUnoGame() {
+  const [showInstructions, setShowInstructions] = useState(true); // Novo estado para a tela inicial
   const [wordData, setWordData] = useState<Record<number, string[]>>({});
   const [word, setWord] = useState("");
   const [color, setColor] = useState<CardColor | null>(null);
-  const [loading, setLoading] = useState(true); // Começa true para carregar o JSON
+  const [loading, setLoading] = useState(true);
   const [answer, setAnswer] = useState("");
   const [submittedAnswer, setSubmittedAnswer] = useState("");
   const [score, setScore] = useState(0);
@@ -28,7 +29,6 @@ export default function EnglishUnoGame() {
   const [lastLifeLost, setLastLifeLost] = useState<number | null>(null);
   const [hint, setHint] = useState("");
 
-  // Carrega as palavras do JSON local ao iniciar
   useEffect(() => {
     const loadWords = async () => {
       try {
@@ -56,6 +56,7 @@ export default function EnglishUnoGame() {
   const resetGame = () => {
     setScore(0); setLives(6); setGameOver(false); setIsRoundActive(false);
     setWord(""); setSubmittedAnswer(""); setLastLifeLost(null); setHint("");
+    setShowInstructions(true); // Volta para a explicação ao quitar
   };
 
   const handleLoseLife = () => {
@@ -154,64 +155,107 @@ export default function EnglishUnoGame() {
 
       <div style={{ background: "#161625", padding: 30, borderRadius: 25, width: "100%", maxWidth: 380, boxShadow: "0 20px 50px rgba(0,0,0,0.8)", textAlign: "center", position: "relative" }} className={isShaking ? "shake-effect" : ""}>
         
-        {/* Header, Score e Corações iguais ao anterior... */}
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 15 }}>
-          <button onClick={() => window.confirm("Quit?") && resetGame()} style={{ background: "none", border: "1px solid #444", color: "#888", borderRadius: 5, padding: "4px 8px", fontSize: 10, cursor: "pointer" }}>QUIT</button>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 10, opacity: 0.6 }}>SCORE</div>
-            <div style={{ fontSize: 24, fontWeight: "bold", color: score < 0 ? "#ff4444" : "#00e676" }}>{score}</div>
+        {/* TELA DE INSTRUÇÕES */}
+        {showInstructions ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            <h2 style={{ color: "#ffcc00", margin: 0 }}>How to Play 🃏</h2>
+            <div style={{ textAlign: "left", fontSize: "14px", lineHeight: "1.6", color: "#bbb" }}>
+              <p>Draw a card and complete the challenge based on the <b>color</b>:</p>
+              <ul style={{ paddingLeft: "20px", listStyleType: "none" }}>
+                <li style={{ marginBottom: "10px" }}><span style={{ color: "red", fontWeight: "bold" }}>● RED:</span> Use a new word starting with the same letter.</li>
+                <li style={{ marginBottom: "10px" }}><span style={{ color: "#42a5f5", fontWeight: "bold" }}>● BLUE:</span> Create a sentence (3+ words) using the word.</li>
+                <li style={{ marginBottom: "10px" }}><span style={{ color: "#f59e0b", fontWeight: "bold" }}>● YELLOW:</span> Describe the meaning WITHOUT using the word.</li>
+                <li style={{ marginBottom: "10px" }}><span style={{ color: "#66bb6a", fontWeight: "bold" }}>● GREEN:</span> Find a word that rhymes with the ending.</li>
+              </ul>
+              <p style={{ fontSize: "12px", borderTop: "1px solid #333", paddingTop: "10px" }}>
+                ⚠️ <b>SKIP</b> costs 1 point. <br/>
+                ⚠️ <b>HINT</b> costs 2 points.
+              </p>
+            </div>
+            <button 
+              onClick={() => setShowInstructions(false)} 
+              style={{ padding: "15px", borderRadius: 12, border: "none", background: "#00e676", color: "#000", fontWeight: "bold", cursor: "pointer", fontSize: "16px" }}
+            >
+              START GAME
+            </button>
           </div>
-        </div>
-
-        {gameOver && (
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.95)", borderRadius: 25, zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-            <h1 style={{ color: "#ff4444", margin: 0 }}>GAME OVER</h1>
-            <p>Score: {score}</p>
-            <button onClick={resetGame} style={{ marginTop: 20, padding: "12px 24px", borderRadius: 10, border: "none", background: "#00e676", fontWeight: "bold", cursor: "pointer" }}>TRY AGAIN</button>
-          </div>
-        )}
-
-        <div style={{ display: "flex", justifyContent: "center", gap: "4px", marginBottom: 15 }}>
-          {[...Array(6)].map((_, i) => (
-            <span key={i} className={i === lastLifeLost ? "heart-animation" : ""} style={{ fontSize: 18, display: i >= lives && i !== lastLifeLost ? "none" : "inline-block", color: "#ff4444" }}>❤️</span>
-          ))}
-        </div>
-
-        {!isRoundActive && (
-          <div style={{ display: "flex", gap: "5px", marginBottom: 15 }}>
-            {[1, 2, 3, 4].map((lvl) => (
-              <button key={lvl} onClick={() => setLevel(lvl)} style={{ flex: 1, padding: "6px", borderRadius: "6px", border: "none", background: level === lvl ? "#2196f3" : "#333", color: "white", fontSize: 11, cursor: "pointer" }}>Lvl {lvl}</button>
-            ))}
-          </div>
-        )}
-
-        <button onClick={drawCard} disabled={loading} style={{ padding: "15px", borderRadius: 12, border: "none", background: "#ffcc00", color: "#000", fontWeight: "bold", cursor: "pointer", width: "100%", marginBottom: 15 }}>
-          {loading ? "LOADING WORDS..." : isRoundActive ? "SKIP (-1 PT)" : "DRAW A CARD"}
-        </button>
-
-        {word && (
-          <div style={{ backgroundColor: color === "yellow" ? "#f59e0b" : color === "green" ? "#2e7d32" : (color ?? "transparent"), borderRadius: 20, padding: 20, marginBottom: 15 }}>
-            <h1 style={{ margin: "0", fontSize: 26 }}>{word.toUpperCase()}</h1>
-            <p style={{ fontSize: 12, marginTop: 10, opacity: 0.9 }}>
-              {color === "red" && `Word starting with: ${word[0].toUpperCase()}`}
-              {color === "blue" && `Sentence using this word (3+ words)`}
-              {color === "yellow" && `Describe the meaning (Don't use the word!)`}
-              {color === "green" && `Rhyme ending in: -${word.slice(-2)}`}
-            </p>
-          </div>
-        )}
-
-        {isRoundActive && (
+        ) : (
+          /* O JOGO EM SI */
           <>
-            {!hint && <button onClick={fetchHint} style={{ background: "none", color: "#aaa", fontSize: 10, marginBottom: 10, cursor: "pointer", textDecoration: "underline", border: "none" }}>Show Hint (-2 Points)</button>}
-            {hint && <p style={{ fontSize: 11, color: "#bbb", background: "rgba(0,0,0,0.3)", padding: 10, borderRadius: 8, marginBottom: 10 }}>{hint}</p>}
-            <input value={answer} onChange={(e) => setAnswer(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && submitAnswer()} placeholder="Your answer..." style={{ width: "100%", padding: "15px", borderRadius: 12, border: "none", marginBottom: 10, background: "#222", color: "white" }} />
-            <button onClick={submitAnswer} style={{ width: "100%", padding: "15px", borderRadius: 12, border: "none", background: "#00e676", color: "#000", fontWeight: "bold", cursor: "pointer" }}>SUBMIT</button>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 15 }}>
+              <button onClick={() => window.confirm("Quit?") && resetGame()} style={{ background: "none", border: "1px solid #444", color: "#888", borderRadius: 5, padding: "4px 8px", fontSize: 10, cursor: "pointer" }}>QUIT</button>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 10, opacity: 0.6 }}>SCORE</div>
+                <div style={{ fontSize: 24, fontWeight: "bold", color: score < 0 ? "#ff4444" : "#00e676" }}>{score}</div>
+              </div>
+            </div>
+
+            {gameOver && (
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.95)", borderRadius: 25, zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                <h1 style={{ color: "#ff4444", margin: 0 }}>GAME OVER</h1>
+                <p>Score: {score}</p>
+                <button onClick={resetGame} style={{ marginTop: 20, padding: "12px 24px", borderRadius: 10, border: "none", background: "#00e676", fontWeight: "bold", cursor: "pointer" }}>TRY AGAIN</button>
+              </div>
+            )}
+
+            <div style={{ display: "flex", justifyContent: "center", gap: "4px", marginBottom: 15 }}>
+              {[...Array(6)].map((_, i) => (
+                <span key={i} className={i === lastLifeLost ? "heart-animation" : ""} style={{ fontSize: 18, display: i >= lives && i !== lastLifeLost ? "none" : "inline-block", color: "#ff4444" }}>❤️</span>
+              ))}
+            </div>
+
+            {!isRoundActive && (
+              <div style={{ display: "flex", gap: "5px", marginBottom: 15 }}>
+                {[1, 2, 3, 4].map((lvl) => (
+                  <button key={lvl} onClick={() => setLevel(lvl)} style={{ flex: 1, padding: "6px", borderRadius: "6px", border: "none", background: level === lvl ? "#2196f3" : "#333", color: "white", fontSize: 11, cursor: "pointer" }}>Lvl {lvl}</button>
+                ))}
+              </div>
+            )}
+
+            <button 
+              onClick={drawCard} 
+              disabled={loading} 
+              style={{ 
+                padding: "15px", 
+                borderRadius: 12, 
+                border: "none", 
+                background: loading ? "#444" : isRoundActive ? "#333333" : "#ffcc00", 
+                color: isRoundActive ? "#ffffff" : "#000000", 
+                fontWeight: "bold", 
+                cursor: "pointer", 
+                width: "100%", 
+                marginBottom: 15,
+                transition: "all 0.2s ease"
+              }}
+            >
+              {loading ? "LOADING WORDS..." : isRoundActive ? "SKIP (-1 PT)" : "DRAW A CARD"}
+            </button>
+
+            {word && (
+              <div style={{ backgroundColor: color === "yellow" ? "#f59e0b" : color === "green" ? "#2e7d32" : (color ?? "transparent"), borderRadius: 20, padding: 20, marginBottom: 15 }}>
+                <h1 style={{ margin: "0", fontSize: 26 }}>{word.toUpperCase()}</h1>
+                <p style={{ fontSize: 12, marginTop: 10, opacity: 0.9 }}>
+                  {color === "red" && `Word starting with: ${word[0].toUpperCase()}`}
+                  {color === "blue" && `Sentence using this word (3+ words)`}
+                  {color === "yellow" && `Describe the meaning (Don't use the word!)`}
+                  {color === "green" && `Rhyme ending in: -${word.slice(-2)}`}
+                </p>
+              </div>
+            )}
+
+            {isRoundActive && (
+              <>
+                {!hint && <button onClick={fetchHint} style={{ background: "none", color: "#aaa", fontSize: 10, marginBottom: 10, cursor: "pointer", textDecoration: "underline", border: "none" }}>Show Hint (-2 Points)</button>}
+                {hint && <p style={{ fontSize: 11, color: "#bbb", background: "rgba(0,0,0,0.3)", padding: 10, borderRadius: 8, marginBottom: 10 }}>{hint}</p>}
+                <input value={answer} onChange={(e) => setAnswer(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && submitAnswer()} placeholder="Your answer..." style={{ width: "100%", padding: "15px", borderRadius: 12, border: "none", marginBottom: 10, background: "#222", color: "white" }} />
+                <button onClick={submitAnswer} style={{ width: "100%", padding: "15px", borderRadius: 12, border: "none", background: "#00e676", color: "#000", fontWeight: "bold", cursor: "pointer" }}>SUBMIT</button>
+              </>
+            )}
+
+            {submittedAnswer && <p style={{ marginTop: 15, fontSize: 14, fontWeight: "bold", color: submittedAnswer.includes("Correct") ? "#00e676" : "#ff4444" }}>{submittedAnswer}</p>}
+            <div style={{ marginTop: 20, fontSize: 10, opacity: 0.4 }}>BEST SCORE: {highScore}</div>
           </>
         )}
-
-        {submittedAnswer && <p style={{ marginTop: 15, fontSize: 14, fontWeight: "bold", color: submittedAnswer.includes("Correct") ? "#00e676" : "#ff4444" }}>{submittedAnswer}</p>}
-        <div style={{ marginTop: 20, fontSize: 10, opacity: 0.4 }}>BEST SCORE: {highScore}</div>
       </div>
     </div>
   );

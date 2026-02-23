@@ -180,7 +180,7 @@ export default function LevelsPage() {
       }}
       onMouseEnter={(e) => e.currentTarget.style.color = "#b042b0"}
       onMouseLeave={(e) => e.currentTarget.style.color = "#bbb"}>
-        ← BACK TO HOME
+        ← BACK HOME
       </Link>
     </div>
   );
