@@ -146,8 +146,8 @@ export default function GamesMenu() {
         fontWeight: "600",
         transition: "color 0.3s"
       }}
-      onMouseEnter={(e) => e.currentTarget.style.color = "#b042b0"}
-      onMouseLeave={(e) => e.currentTarget.style.color = "#bbb"}>
+      onMouseEnter={(e: any) => e.currentTarget.style.color = "#b042b0"}
+      onMouseLeave={(e: any) => e.currentTarget.style.color = "#bbb"}>
         ← BACK HOME
       </Link>
     </div>
