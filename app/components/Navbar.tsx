@@ -3,21 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
-
-type NavItem = { label: string; href: string };
+import { useLanguage } from "@/lib/languageContext";
 
 type NavbarProps = {
   brand?: { label: string; href: string; badge?: string };
-  items?: NavItem[];
-  cta?: { label: string; href: string };
 };
-
-const defaultItems: NavItem[] = [
-  { label: "Home", href: "/" },
-  { label: "Play", href: "/game" },
-  { label: "Levels", href: "/Levels" },
-  { label: "About", href: "/about" },
-];
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -25,11 +15,29 @@ function cn(...classes: Array<string | false | null | undefined>) {
 
 export default function Navbar({
   brand = { label: "ColorWords", href: "/", badge: "✨ fun mode" },
-  items = defaultItems,
-  cta = { label: "Create account ✨", href: "/signup" },
 }: NavbarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
+  
+  const { lang, setLang, t } = useLanguage();
+
+  // Mapeamento das bandeiras
+  const languageData = {
+    en: { label: 'English', flag: '🇺🇸' },
+    pt: { label: 'Português', flag: '🇧🇷' },
+    es: { label: 'Español', flag: '🇪🇸' },
+    fr: { label: 'Français', flag: '🇫🇷' },
+    zh: { label: '中文', flag: '🇨🇳' },
+  } as const;
+
+  // Geramos os itens do menu dinamicamente usando t.nav
+  const navItems = useMemo(() => [
+    { label: t.nav.home, href: "/" },
+    { label: t.nav.play, href: "/game" },
+    { label: t.nav.levels, href: "/Levels" },
+    { label: t.nav.about, href: "/about" },
+  ], [t]);
 
   const normalizedPath = useMemo(() => {
     if (!pathname) return "/";
@@ -38,165 +46,131 @@ export default function Navbar({
   }, [pathname]);
 
   const isActive = (href: string) => {
-    const normalizedHref =
-      href !== "/" && href.endsWith("/") ? href.slice(0, -1) : href;
+    const normalizedHref = href !== "/" && href.endsWith("/") ? href.slice(0, -1) : href;
     return normalizedPath === normalizedHref;
   };
 
-  useEffect(() => setOpen(false), [normalizedPath]);
-
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
-
-  useEffect(() => {
-    if (!open) return;
-    const original = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = original;
-    };
-  }, [open]);
+    setOpen(false);
+    setLangMenuOpen(false);
+  }, [normalizedPath]);
 
   return (
     <header className="sticky top-0 z-50 w-full">
-      <div className="bg-gradient-to-r from-pink-100/80 via-fuchsia-100/80 to-violet-100/80 backdrop-blur-md">
+      <div className="bg-gradient-to-r from-pink-100/80 via-fuchsia-100/80 to-violet-100/80 backdrop-blur-md border-b border-white/20">
         <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 md:px-6">
+          
           {/* Brand */}
-          <Link
-            href={brand.href}
-            className="group inline-flex items-center gap-3 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/20"
-            aria-label={`${brand.label} home`}
-          >
-            <span className="grid h-11 w-11 place-items-center rounded-2xl border border-neutral-200 bg-gradient-to-br from-yellow-50 via-pink-50 to-blue-50 shadow-sm transition group-hover:rotate-2 group-hover:scale-[1.02]">
+          <Link href={brand.href} className="group inline-flex items-center gap-3 outline-none">
+            <span className="grid h-10 w-10 md:h-11 md:w-11 place-items-center rounded-2xl border border-white bg-white/50 shadow-sm transition group-hover:rotate-2">
               <span className="text-lg">🎨</span>
             </span>
-
             <span className="flex flex-col leading-tight">
-              <span className="text-base font-extrabold tracking-tight md:text-lg">
-                <span className="bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  {brand.label}
-                </span>
+              <span className="text-sm md:text-base font-extrabold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent">
+                {brand.label}
               </span>
-              {brand.badge ? (
-                <span className="w-fit rounded-full border border-neutral-200 bg-white/70 px-2 py-0.5 text-[11px] font-semibold text-neutral-700 shadow-sm">
-                  {brand.badge}
-                </span>
-              ) : null}
             </span>
           </Link>
 
-          {/* Desktop links */}
+          {/* Desktop Nav Links */}
           <div className="hidden items-center gap-2 md:flex">
-            {items.map((item) => {
-              const active = isActive(item.href);
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "relative rounded-full px-4 py-2 text-sm font-semibold outline-none transition",
-                    "focus-visible:ring-2 focus-visible:ring-purple-500/20",
-                    active
-                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md shadow-purple-200" 
-                      : "text-neutral-700 hover:bg-purple-50 hover:text-purple-700 hover:-translate-y-0.5"
-                  )}
-                >
-                  {item.label}
-                  {active ? (
-                    <span className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-white/20" />
-                  ) : null}
-                </Link>
-              );
-            })}
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "rounded-full px-4 py-2 text-sm font-semibold transition",
+                  isActive(item.href) ? "bg-white text-purple-600 shadow-sm" : "text-neutral-600 hover:text-purple-600"
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
 
-          {/* Desktop CTA */}
-          <div className="hidden md:flex">
-            <Link
-              href={cta.href}
-              className={cn(
-                "rounded-full px-4 py-2 text-sm font-extrabold text-white shadow-sm",
-                "bg-gradient-to-r from-pink-600/90 via-purple-600/90 to-blue-600/90",
-                "transition hover:brightness-110 active:scale-[0.99]",
-                "outline-none focus-visible:ring-2 focus-visible:ring-purple-600/20"
+          {/* Actions */}
+          <div className="flex items-center gap-2 md:gap-3">
+            
+            {/* Selector de Idiomas */}
+            <div className="relative">
+              <button 
+                onClick={() => setLangMenuOpen(!langMenuOpen)}
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-white bg-white/40 shadow-sm transition hover:scale-105 active:scale-95"
+              >
+                <span className="text-xl">{languageData[lang as keyof typeof languageData].flag}</span>
+              </button>
+
+              {langMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setLangMenuOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 z-20 w-40 overflow-hidden rounded-2xl border border-white bg-white/95 shadow-xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-200">
+                    {(Object.keys(languageData) as Array<keyof typeof languageData>).map((code) => (
+                      <button
+                        key={code}
+                        onClick={() => {
+                          setLang(code);
+                          setLangMenuOpen(false);
+                        }}
+                        className={cn(
+                          "flex w-full items-center gap-3 px-4 py-3 text-sm font-bold transition hover:bg-purple-50",
+                          lang === code ? "text-purple-600 bg-purple-50" : "text-neutral-600"
+                        )}
+                      >
+                        <span className="text-lg">{languageData[code].flag}</span>
+                        {languageData[code].label}
+                      </button>
+                    ))}
+                  </div>
+                </>
               )}
-            >
-              {cta.label}
-            </Link>
-          </div>
+            </div>
 
-          {/* Mobile button */}
-          <button
-            type="button"
-            className={cn(
-              "inline-flex items-center justify-center rounded-2xl border border-neutral-200 p-2 md:hidden",
-              "bg-white/80 shadow-sm outline-none transition hover:bg-neutral-50",
-              "focus-visible:ring-2 focus-visible:ring-purple-600/20"
-            )}
-            onClick={() => setOpen((v) => !v)}
-          >
-            <span className="text-lg">{open ? "✖️" : "🪄"}</span>
-          </button>
+            {/* Desktop CTA */}
+            <Link 
+              href="/signup" 
+              className="hidden md:block rounded-full px-5 py-2.5 text-sm font-extrabold text-white shadow-md bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 transition-all hover:scale-105 hover:brightness-110 active:scale-95"
+            >
+              {t.nav.cta}
+            </Link>
+
+            {/* Mobile Menu Button */}
+            <button 
+              onClick={() => setOpen(!open)} 
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white bg-white/50 md:hidden transition active:scale-90"
+            >
+              <span className="text-lg">{open ? "✖️" : "🪄"}</span>
+            </button>
+          </div>
         </nav>
       </div>
 
-      {/* Mobile overlay + panel */}
-      <div className={cn("md:hidden", open ? "pointer-events-auto" : "pointer-events-none")}>
-        <div
-          onClick={() => setOpen(false)}
-          className={cn(
-            "fixed inset-0 z-40 bg-black/25 transition-opacity",
-            open ? "opacity-100" : "opacity-0"
-          )}
-        />
-
-        <div className="fixed left-0 right-0 top-[64px] z-50 mx-auto w-full max-w-6xl px-4">
-          <div
-            className={cn(
-              "rounded-3xl border border-neutral-200 bg-white/90 p-3 shadow-xl backdrop-blur-xl transition",
-              open ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0"
-            )}
-          >
+      {/* Mobile Menu Panel */}
+      {open && (
+        <div className="fixed inset-x-0 top-[70px] z-50 mx-4 md:hidden">
+          <div className="rounded-3xl border border-white bg-white/95 p-3 shadow-2xl backdrop-blur-xl animate-in slide-in-from-top-2 duration-300">
             <div className="flex flex-col gap-2">
-              <div className="rounded-2xl bg-gradient-to-r from-yellow-50 via-pink-50 to-blue-50 p-3">
-                <p className="text-sm font-semibold text-neutral-900">Ready to learn English? 🚀</p>
-                <p className="text-xs text-neutral-600">No pressure. Just progress.</p>
-              </div>
-
-              {items.map((item) => {
-                const active = isActive(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "rounded-2xl px-4 py-3 text-sm font-semibold transition outline-none",
-                      active
-                        ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-sm"
-                        : "bg-neutral-50 text-neutral-800 hover:bg-neutral-100"
-                    )}
-                  >
-                    {active ? "✨ " : "👉 "}
-                    {item.label}
-                  </Link>
-                );
-              })}
-
-              <Link
-                href={cta.href}
-                className="mt-1 rounded-2xl px-4 py-3 text-center text-sm font-extrabold text-white bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600"
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "rounded-2xl px-4 py-4 text-base font-bold transition",
+                    isActive(item.href) ? "bg-purple-600 text-white shadow-md" : "bg-white/50 text-neutral-700 active:bg-purple-50"
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <Link 
+                href="/signup" 
+                className="mt-1 rounded-2xl px-4 py-4 text-center text-base font-extrabold text-white bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 shadow-lg"
               >
-                {cta.label}
+                {t.nav.cta}
               </Link>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </header>
   );
 }
